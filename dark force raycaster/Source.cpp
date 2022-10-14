@@ -2,6 +2,7 @@
 #define SLICE_WIDTH 8
 #define SCREEN_W 960
 #define SCREEN_H 640
+#define WRLD_SCALE (8 / (SLICE_WIDTH / 2) )
 
 #include "olcPixelGameEngine.h"
 #include "textures/tatoonineTextures.ppm"
@@ -23,6 +24,7 @@
 #define MAP_SCALE 1.0f
 #define Q_PI PI * 0.25f
 int glbSliceWidth = SLICE_WIDTH;
+int World_Scale = WRLD_SCALE;
 constexpr int mapS = 64;
 
 float DegToRad(float a) { return a * (PI / 180.0f); }
@@ -397,7 +399,7 @@ public:  //functions
 		if (fHeading < 0) fHeading += 2.0f * 3.14159f;
 		if (fHeading >= 2.0f * 3.14159f) fHeading -= 2.0f * 3.14159f;
 
-		int scale =  42 * 80 / b;
+		int scale =  42 * 80 * WRLD_SCALE/ b;
 
 		//if (scale < 0) { scale = 0; } if (scale > 120) { scale = 120; }
 		scale = std::max(0, std::min(SCREEN_W / SLICE_WIDTH, scale));

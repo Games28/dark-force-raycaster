@@ -6,6 +6,7 @@
 #define SCALE 2
 extern int glbSliceWidth;
 extern int depth[];
+extern int World_Scale;
 
 class Troopers : public NPC
 {

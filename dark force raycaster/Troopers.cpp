@@ -34,7 +34,7 @@ void Troopers::Draw(olc::PixelGameEngine* PGEptr, float playerx, float playery, 
 	if (fHeading < 0) fHeading += 2.0f * 3.14159f;
 	if (fHeading >= 2.0f * 3.14159f) fHeading -= 2.0f * 3.14159f;
 
-	int scale = 4000 / b;
+	int scale = 4000 * World_Scale / b;
 
 	//if (scale < 0) { scale = 0; } if (scale > 120) { scale = 120; }
 	scale = std::max(0, std::min(PGEptr->ScreenWidth() / glbSliceWidth, scale));
