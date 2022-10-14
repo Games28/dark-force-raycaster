@@ -1,4 +1,8 @@
 #pragma once
+#ifndef PLAYER_H
+#define PLAYER_H
+
+
 #include "olcPixelGameEngine.h"
 
 
@@ -17,3 +21,4 @@ public:
 	olc::Sprite *spriteHandPtr[amount];
 };
 
+#endif // !PLAYER_H

@@ -2,7 +2,7 @@
 
 void Lightsaber::Init()
 {
-	sprites[0] = new olc::Sprite("textures/weapon/saberbackground.png");
+	sprites[0] = new olc::Sprite("textures/weapon/tempsaber1.png");
 	sprites[1] = new olc::Sprite("textures/weapon/newsaberA.png");
 	sprites[2] = new olc::Sprite("textures/weapon/newsaberB.png");
 	sprites[3] = new olc::Sprite("textures/weapon/saberglow.png");
@@ -82,21 +82,39 @@ void Lightsaber::Draw(olc::PixelGameEngine* PGEptr, float deltatime, float playe
 
 	}else
 	{
-		fTimer += deltatime;
-		
-		PGEptr->DrawPartialSprite(saberposDefault.x, saberposDefault.y, sprites[3], nFrameCnt * 100, 0, 100, 100, nScale * 2);
-		if (fTimer > SFrameTime)
+		//fTimer += deltatime;
+		//
+		//PGEptr->DrawPartialSprite(saberposDefault.x, saberposDefault.y, sprites[3], nFrameCnt * 100, 0, 100, 100, nScale * 2);
+		//if (fTimer > SFrameTime)
+		//{
+		//	fTimer -= SFrameTime;
+		//
+		//	
+		//	nFrameCnt += 1;
+		//
+		//	if (nFrameCnt > 3)
+		//	{
+		//		nFrameCnt = 0;
+		//		
+		//
+		//	}
+		//}
+
+		float sx = saberposDefault.x;
+		float sy = saberposDefault.y;
+		int x, y;
+		int textureSize = 200;
+
+		for (y = 0; y < textureSize; y++)
 		{
-			fTimer -= SFrameTime;
-
-			
-			nFrameCnt += 1;
-
-			if (nFrameCnt > 3)
+			for (x = 0; x < textureSize; x++)
 			{
-				nFrameCnt = 0;
-				
 
+				olc::Pixel samplePixel = sprites[0]->GetPixel(x, y);
+				if (samplePixel != olc::MAGENTA)
+				{
+					PGEptr->FillRect(sx + x * 2, sy + y * 2, 2, 2, samplePixel);
+				}
 			}
 		}
 	}

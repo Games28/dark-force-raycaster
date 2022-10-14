@@ -1,4 +1,7 @@
 #define OLC_PGE_APPLICATION
+#define SLICE_WIDTH 8
+#define SCREEN_W 960
+#define SCREEN_H 640
 
 #include "olcPixelGameEngine.h"
 #include "textures/tatoonineTextures.ppm"
@@ -19,7 +22,7 @@
 #define EPSILON 0.00001f
 #define MAP_SCALE 1.0f
 #define Q_PI PI * 0.25f
-
+int glbSliceWidth = SLICE_WIDTH;
 constexpr int mapS = 64;
 
 float DegToRad(float a) { return a * (PI / 180.0f); }
@@ -43,6 +46,8 @@ typedef struct
 	olc::vi2d curTile;
 }Sprite; Sprite sprite[4], spriteHand[4];
 
+int depth[SCREEN_W / SLICE_WIDTH];
+//int depth[120];
 class dark_force_raycaster : public olc::PixelGameEngine
 {
 private:  //vaiables
@@ -50,7 +55,7 @@ private:  //vaiables
 	int gameState = 0, timer = 0;
 	float fade = 0;
 	float offsetA;
-	int depth[120];
+
 	bool lockon = false;
 	float fobjplyA;
 	olc::Sprite* spritePtrs[4] = { nullptr };
@@ -142,9 +147,10 @@ public:  //functions
 		int ipx = player.x / 64.0f, ipx_add_xo = (player.x + xo) / 64.0f, ipx_sub_xo = (player.x - xo) / 64.0f;
 		int ipy = player.y / 64.0f, ipy_add_yo = (player.y + yo) / 64.0f, ipy_sub_yo = (player.y - yo) / 64.0f;
 
-		float fMoveSpeed = deltaTime * 100.0f;
-		float fRotSPeed = deltaTime * 2.0f;
-
+		float fSpeedDown = GetKey(olc::Key::SHIFT).bHeld ? 0.1f : 1.0f;
+		float fMoveSpeed = fSpeedDown * deltaTime * 100.0f;
+		float fRotSPeed = fSpeedDown * deltaTime * 2.0f; 
+		
 		if (GetKey(olc::Key::W).bHeld)
 		{
 			if (mapW[ipy * mapX + ipx_add_xo] == 0) { player.x += player.pdx * fMoveSpeed; }
@@ -309,7 +315,7 @@ public:  //functions
 			int green = tatoonineTextures[pixel + 1] * shade;
 			int blue = tatoonineTextures[pixel + 2] * shade;
 
-			FillRect(r * 8, lineoff + y, 8, 1, olc::Pixel(red, green, blue));
+			FillRect(r * SLICE_WIDTH, lineoff + y, SLICE_WIDTH, 1, olc::Pixel(red, green, blue));
 
 			ty += ty_step;
 
@@ -331,7 +337,7 @@ public:  //functions
 
 
 
-			FillRect(r * 8, y, 8, 1, olc::Pixel(red, green, blue));
+			FillRect(r * SLICE_WIDTH, y, SLICE_WIDTH, 1, olc::Pixel(red, green, blue));
 
 			//---draw ceiling---
 			nmp = mapC[(int)(ty / 32.0) * mapX + (int)(tx / 32.0)] * 32 * 32;
@@ -342,7 +348,7 @@ public:  //functions
 
 
 			if (nmp > 0) {
-				FillRect(r * 8, 640 - y, 8, 1, olc::Pixel(red, green, blue));
+				FillRect(r * SLICE_WIDTH, 640 - y, SLICE_WIDTH, 1, olc::Pixel(red, green, blue));
 			}
 		}
 	}
@@ -363,7 +369,7 @@ public:  //functions
 				int green = sky[pixel + 1];
 				int blue = sky[pixel + 2];
 
-				FillRect(x * 8, y * 8, 8, 8, olc::Pixel(red, green, blue));
+				FillRect(x * SLICE_WIDTH, y * SLICE_WIDTH, SLICE_WIDTH, SLICE_WIDTH, olc::Pixel(red, green, blue));
 			}
 		}
 	}
@@ -385,8 +391,8 @@ public:  //functions
 		float a = sy * CS + sx * SN;
 		float b = sx * CS - sy * SN;
 		sx = a; sy = b;
-		sx = (sx * 108.0 / sy) + (120 / 2);
-		sy = (sz * 108.0 / sy) + (80 / 2);
+		sx = (sx * 108.0 / sy) + ((SCREEN_W / SLICE_WIDTH) / 2);
+		sy = (sz * 108.0 / sy) + ((SCREEN_W / SLICE_WIDTH) / 2);
 		fHeading = player.angle - sprite[0].a + 3.14159f / 4.0f;
 		if (fHeading < 0) fHeading += 2.0f * 3.14159f;
 		if (fHeading >= 2.0f * 3.14159f) fHeading -= 2.0f * 3.14159f;
@@ -394,7 +400,7 @@ public:  //functions
 		int scale =  42 * 80 / b;
 
 		//if (scale < 0) { scale = 0; } if (scale > 120) { scale = 120; }
-		scale = std::max(0, std::min(ScreenWidth() / 2, scale));
+		scale = std::max(0, std::min(SCREEN_W / SLICE_WIDTH, scale));
 
 		int nTextureSize = 100;
 		olc::vi2d curTile = { 0,0 };
@@ -429,9 +435,9 @@ public:  //functions
 			t_y = nTextureSize - 1;
 			for (y = 0; y < scale; y++)
 			{
-				if (x > 0 && x < 120 && b < depth[x])
+				if (x > 0 && x < (SCREEN_W / SLICE_WIDTH) && b < depth[x])
 				{
-					olc::Pixel samplePixel = spritePtrs[0]->GetPixel(curTile.x * tileSize.x + t_x, curTile.y * tileSize.y + t_y);
+					olc::Pixel samplePixel = spritePtrs[1]->GetPixel(curTile.x * tileSize.x + t_x, curTile.y * tileSize.y + t_y);
 					if (samplePixel != olc::MAGENTA)
 					{
 						FillRect(x * 8, (sy - y) * 8, 8, 8, samplePixel);
@@ -493,13 +499,14 @@ public: //main function
 		//drawMap();
 		//drawPlayer();
 		drawRays();
-		//drawSpriteTest();
+		drawSpriteTest();
 		if (GetKey(olc::Key::SPACE).bHeld)
 		{
 			powers.Draw(this);
 		}
-		player.Draw(this);
+		
 		trooper.Draw(this, player.x, player.y, player.angle);
+		player.Draw(this);
 		saber.Draw(this, fElapsedTime,player.x,player.y);
 		lockon = isInSight(sprite[0].x, sprite[0].y, 20.0f * PI / 180.0f, fnotuse);
 		if (GetKey(olc::Key::V).bHeld && lockon == true)

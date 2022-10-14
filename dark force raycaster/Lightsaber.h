@@ -1,6 +1,12 @@
 #pragma once
+#ifndef LIGHTSABER_H
+#define LIGHTSABER_H
+
+
 #include "olcPixelGameEngine.h"
 #define SCALE 2
+extern int depth[];
+extern int glbSliceWidth;
 
 class Lightsaber
 {
@@ -33,3 +39,4 @@ private:
 
 };
 
+#endif // !LIGHTSABER_H

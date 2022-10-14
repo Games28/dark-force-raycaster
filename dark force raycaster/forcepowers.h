@@ -1,6 +1,10 @@
+#ifndef POWERS_H
+#define POWERS_H
+
+
 #include "olcPixelGameEngine.h"
-
-
+extern int glbSliceWidth;
+extern int depth[];
 class ForcePowers 
 {
 public:
@@ -24,3 +28,5 @@ private:
 	float HandY = 350;
 	
 };
+
+#endif // !POWERS_H

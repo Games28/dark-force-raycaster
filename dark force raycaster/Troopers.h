@@ -1,5 +1,11 @@
 #pragma once
+#ifndef TROOPER_H
+#define TROOPER_H
+
 #include "NPC.h"
+#define SCALE 2
+extern int glbSliceWidth;
+extern int depth[];
 
 class Troopers : public NPC
 {
@@ -15,8 +21,9 @@ private:
 	olc::Pixel orgPixel = olc::MAGENTA;
 	olc::Pixel newPixel = olc::BLANK;
 	float posX, posY, posZ, fHeading, angle;
-	int depth[120];
+	
 	olc::vi2d curTile; 
 	olc::vi2d tileSize; 
 };
 
+#endif // !TROOPER_H
