@@ -4,6 +4,9 @@
 #define SCREEN_H 640
 #define WRLD_SCALE (8 / (SLICE_WIDTH / 2) )
 
+//test defines
+
+
 #include "olcPixelGameEngine.h"
 #include "textures/tatoonineTextures.ppm"
 #include "textures/sky.ppm"
@@ -48,7 +51,8 @@ typedef struct
 	olc::vi2d curTile;
 }Sprite; Sprite sprite[4], spriteHand[4];
 
-int depth[SCREEN_W / SLICE_WIDTH];
+int depth[SCREEN_W];
+int ndepth = 120;
 //int depth[120];
 class dark_force_raycaster : public olc::PixelGameEngine
 {
@@ -57,7 +61,7 @@ private:  //vaiables
 	int gameState = 0, timer = 0;
 	float fade = 0;
 	float offsetA;
-
+	float fFOV = 3.14159f / 4.0f;
 	bool lockon = false;
 	float fobjplyA;
 	olc::Sprite* spritePtrs[4] = { nullptr };
@@ -66,16 +70,17 @@ private:  //vaiables
 	Lightsaber saber;
 	Player player;
 	Troopers trooper;
-	olc::vf2d oldplayerpos = {0,0};
-	olc::vf2d newplayerpos = {0,0};
+	olc::vf2d oldplayerpos = { 0,0 };
+	olc::vf2d newplayerpos = { 0,0 };
 	float oldAngle = 0;
 	float newAngle = 0;
 	float fHeading = 0;
+	
 
 public:  //functions
-	
+
 	//wall map
-	int mapW[mapS] = 
+	int mapW[mapS] =
 	{
 		1,1,1,1,1,1,1,1,
 		1,0,0,0,3,0,0,1,
@@ -113,7 +118,7 @@ public:  //functions
 
 	};
 
-	
+
 
 	void Init()
 	{
@@ -125,10 +130,10 @@ public:  //functions
 		spritePtrs[2] = new olc::Sprite("textures/newicon.png");
 		spritePtrs[3] = new olc::Sprite("textures/newiconglow.png");
 		trooper.Init();
-	
+
 		powers.Init();
 		saber.Init();
-		
+
 	}
 
 	void normalizeAngle(float& angle)
@@ -143,21 +148,23 @@ public:  //functions
 		int xo, yo;
 		oldplayerpos = olc::vf2d{ player.x,player.y };
 		oldAngle = player.angle;
-		if (player.pdx < 0) { xo = -20; } else { xo = 20; }
-		if (player.pdy < 0) { yo = -20; } else { yo = 20; }
+		if (player.pdx < 0) { xo = -20; }
+		else { xo = 20; }
+		if (player.pdy < 0) { yo = -20; }
+		else { yo = 20; }
 
 		int ipx = player.x / 64.0f, ipx_add_xo = (player.x + xo) / 64.0f, ipx_sub_xo = (player.x - xo) / 64.0f;
 		int ipy = player.y / 64.0f, ipy_add_yo = (player.y + yo) / 64.0f, ipy_sub_yo = (player.y - yo) / 64.0f;
 
 		float fSpeedDown = GetKey(olc::Key::SHIFT).bHeld ? 0.1f : 1.0f;
 		float fMoveSpeed = fSpeedDown * deltaTime * 100.0f;
-		float fRotSPeed = fSpeedDown * deltaTime * 2.0f; 
-		
+		float fRotSPeed = fSpeedDown * deltaTime * 2.0f;
+
 		if (GetKey(olc::Key::W).bHeld)
 		{
 			if (mapW[ipy * mapX + ipx_add_xo] == 0) { player.x += player.pdx * fMoveSpeed; }
 			if (mapW[ipy_add_yo * mapX + ipx] == 0) { player.y += player.pdy * fMoveSpeed; }
-			
+
 		}
 		if (GetKey(olc::Key::S).bHeld)
 		{
@@ -180,11 +187,11 @@ public:  //functions
 
 			//if (mapW[ipy * mapX + ipx_add_xo] == 0) { player.y += cos(player.angle) * fMoveSpeed; }
 			//if (mapW[ipy_add_yo * mapX + ipx] == 0) { player.x -= sin(player.angle) * fMoveSpeed; }
-			player.y += player.pdx * fMoveSpeed; 
-			player.x -= player.pdy * fMoveSpeed; 
-			
-			
-			
+			player.y += player.pdx * fMoveSpeed;
+			player.x -= player.pdy * fMoveSpeed;
+
+
+
 		}
 		if (GetKey(olc::Key::Q).bHeld)
 		{
@@ -192,12 +199,12 @@ public:  //functions
 			//if (mapW[ipy_add_yo * mapX + ipx] == 0) { player.x += sin(player.angle) * fMoveSpeed; }
 			player.y -= player.pdx * fMoveSpeed;
 			player.x += player.pdy * fMoveSpeed;
-			
-			
+
+
 		}
 		newplayerpos = olc::vf2d{ player.x,player.y };
 		newAngle = player.angle;
- 	}
+	}
 
 
 	//draw functions
@@ -206,7 +213,7 @@ public:  //functions
 	{
 		FillRect((player.x - 4) * MAP_SCALE, (player.y - 4) * MAP_SCALE, 8 * MAP_SCALE, 8 * MAP_SCALE, olc::YELLOW);
 		DrawLine(player.x * MAP_SCALE, player.y * MAP_SCALE,
-			(player.x + player.pdx * 10.0f) * MAP_SCALE, (player.y + player.pdy * 10.0f) * MAP_SCALE,  olc::YELLOW);
+			(player.x + player.pdx * 10.0f) * MAP_SCALE, (player.y + player.pdy * 10.0f) * MAP_SCALE, olc::YELLOW);
 	}
 
 	void drawMap()
@@ -234,7 +241,7 @@ public:  //functions
 
 	void drawRays()
 	{
-		
+
 		int r, mx, my, mp, dof, side; float vx, vy, rx, ry, ra, xo, yo, disV, disH;
 		ra = player.angle + 30.0f * DR;
 		normalizeAngle(ra);
@@ -257,9 +264,9 @@ public:  //functions
 			}
 			vx = rx; vy = ry;
 
-			
+
 			//DrawLine(player.x * MAP_SCALE, player.y * MAP_SCALE, rx * MAP_SCALE, ry * MAP_SCALE, olc::DARK_GREEN);
-			
+
 			//---Horizontal---
 
 			dof = 0; disH = 100000;
@@ -274,21 +281,21 @@ public:  //functions
 				if (mp > 0 && mp < mapX * mapY && mapW[mp] > 0) { hmt = mapW[mp] - 1; dof = 8; disH = cos(ra) * (rx - player.x) - sin(ra) * (ry - player.y); }//hit         
 				else { rx += xo; ry += yo; dof += 1; }                                               //check next horizontal
 			}
-			
-			
-			
+
+
+
 			float shade = 1;
 			olc::Pixel p = olc::GREEN;
 			if (disV < disH) { hmt = vmt; shade = 0.5; rx = vx; ry = vy; disH = disV;  p = olc::GREEN * 0.5f; }
 			//DrawLine(player.x * MAP_SCALE, player.y * MAP_SCALE, rx * MAP_SCALE, ry * MAP_SCALE, p);
 
-			drawWall(r, ra, disH, rx, ry, shade,hmt);
+			drawWall(r, ra, disH, rx, ry, shade, hmt);
 			ra -= 0.5f * DR;       // Joseph21 - ra is in radians, and FixAng works for degrees...
 			normalizeAngle(ra);
 		}
 	}
-	
-	void drawWall(int r,float ra, float disH, float rx, float ry, float shade, int hmt)
+
+	void drawWall(int r, float ra, float disH, float rx, float ry, float shade, int hmt)
 	{
 		float ca = player.angle - ra;
 		disH = disH * cos(ca);
@@ -382,7 +389,7 @@ public:  //functions
 	{
 
 		auto is_between_pi_factors = [=](float fAngle, float fFactorLow, float fFactorHigh) {
-			
+
 			return ((fAngle >= 3.14159f * fFactorLow) && (fAngle < 3.14159f * fFactorHigh)); };
 		int x, y;
 		float sx = sprite[0].x - player.x;
@@ -393,13 +400,13 @@ public:  //functions
 		float a = sy * CS + sx * SN;
 		float b = sx * CS - sy * SN;
 		sx = a; sy = b;
-		sx = (sx * 108.0 / sy) + ((SCREEN_W / SLICE_WIDTH) / 2);
-		sy = (sz * 108.0 / sy) + ((SCREEN_W / SLICE_WIDTH) / 2);
+		sx = (sx * 108.0 / sy) + (120 / 2);
+		sy = (sz * 108.0 / sy) + (80 / 2);
 		fHeading = player.angle - sprite[0].a + 3.14159f / 4.0f;
 		if (fHeading < 0) fHeading += 2.0f * 3.14159f;
 		if (fHeading >= 2.0f * 3.14159f) fHeading -= 2.0f * 3.14159f;
 
-		int scale =  42 * 80 * WRLD_SCALE/ b;
+		int scale = 3000  *  WRLD_SCALE / b;
 
 		//if (scale < 0) { scale = 0; } if (scale > 120) { scale = 120; }
 		scale = std::max(0, std::min(SCREEN_W / SLICE_WIDTH, scale));
@@ -409,28 +416,28 @@ public:  //functions
 		olc::vi2d tileSize = { 100,100 };
 		//textures
 		float t_x = 0, t_y = 0, t_x_step = (float(nTextureSize) - 0.5f) / (float)scale, t_y_step = float(nTextureSize) / (float)scale;
-		
-		
 
-			if (is_between_pi_factors(fHeading, 0.0f, 0.5f))
-			{ //front
-				curTile = { 0,0 };
-			}
-			if (is_between_pi_factors(fHeading, 0.5f, 1.0f))
-			{ // left
-				curTile = { 1,0 };
-			}
-			if (is_between_pi_factors(fHeading, 1.0f, 1.5f))
-			{ //back
-				curTile = { 2,0 };
-			}
 
-			if (is_between_pi_factors(fHeading, 1.5f, 2.0f))
-			{ //right
-				curTile = { 3,0 };
-			}
 
-		
+		if (is_between_pi_factors(fHeading, 0.0f, 0.5f))
+		{ //front
+			curTile = { 0,0 };
+		}
+		if (is_between_pi_factors(fHeading, 0.5f, 1.0f))
+		{ // left
+			curTile = { 1,0 };
+		}
+		if (is_between_pi_factors(fHeading, 1.0f, 1.5f))
+		{ //back
+			curTile = { 2,0 };
+		}
+
+		if (is_between_pi_factors(fHeading, 1.5f, 2.0f))
+		{ //right
+			curTile = { 3,0 };
+		}
+
+
 
 		for (x = sx - scale / 2; x < sx + scale / 2; x++)
 		{
@@ -449,9 +456,93 @@ public:  //functions
 			}
 			t_x += t_x_step;
 		}
-	
+
 	}
 
+	void NewDraw()
+	{
+		
+		auto is_between_pi_factors = [=](float fAngle, float fFactorLow, float fFactorHigh) {
+
+			return ((fAngle >= 3.14159f * fFactorLow) && (fAngle < 3.14159f * fFactorHigh)); };
+
+		float sx = sprite[0].x - player.x;
+		float sy = sprite[0].y - player.y;
+		float sz = sprite[0].z;
+		float x, y;
+		float fEyeX = cosf(player.angle);
+		float fEyeY = sinf(player.angle);
+		int nTextureSize = 100;
+		olc::vi2d curTile = { 0,0 };
+		olc::vi2d tileSize = { 100,100 };
+
+
+		float  fObjectAngle = -atan2f(sy, sx) - atan2f(fEyeY, fEyeX);
+
+		if (fObjectAngle < -PI) fObjectAngle += 2.0f * 3.14159f;
+		if (fObjectAngle > PI) fObjectAngle -= 2.0f * 3.14159f;
+
+		bool bInPlayerFOV = fabs(fObjectAngle) < fFOV / 2.0f;
+
+		float fDistanceFromPlayer = sqrtf(sx * sx + sy * sy);
+
+		int CellSize = 64;
+		int sliceWidth = 0;
+		int panewidth = 0;
+		int paneheight = 0;
+
+		float fObjectCeiling = 0;
+		float fObjectFloor = 0;
+		float fObjectHeight = 0;
+		float fObjectAspectRatio = 0;
+		float fObjectWidth = 0;
+		float fMiddleOfObject = 0;
+
+
+		if (bInPlayerFOV && fDistanceFromPlayer >= 5.0f && fDistanceFromPlayer < ndepth)
+		{
+			sliceWidth = 8;
+			panewidth = ScreenWidth() / sliceWidth;
+			paneheight = ScreenHeight() / sliceWidth;
+
+			fObjectCeiling = (float)(paneheight / 2) - paneheight / ((float)fDistanceFromPlayer / float(CellSize));
+			fObjectFloor = paneheight - fObjectCeiling;
+			fObjectHeight = fObjectFloor - fObjectCeiling;
+			fObjectAspectRatio = tileSize.y / tileSize.x;
+			fObjectWidth = fObjectHeight / fObjectAspectRatio;
+			fMiddleOfObject = (0.5f * (-fObjectAngle / (fFOV / 2.0f)) + 0.5f) * (float)panewidth;
+
+			for (x = 0; x < fObjectWidth; x++)
+			{
+				for (y = 0; y < fObjectHeight; y++)
+				{
+					float fSampleX = x / fObjectWidth;
+					float fSampleY = y / fObjectHeight;
+					int nObjectColumn = (int)(fMiddleOfObject + x - (fObjectWidth / 2.0f));
+					olc::Pixel samplePixel = spritePtrs[1]->Sample(fSampleX, fSampleY);
+					if (samplePixel != olc::MAGENTA && depth[nObjectColumn] >= fDistanceFromPlayer)
+					{
+						FillRect(fObjectWidth * 8, (fObjectCeiling - y) * 8, 8, 8, samplePixel);
+
+						depth[nObjectColumn] = fDistanceFromPlayer;
+					}
+
+				}
+			}
+
+		}
+
+		DrawString(10, 10, "oboject height " + std::to_string(fObjectHeight));
+
+
+		DrawString(10, 20, "object widht " + std::to_string(fObjectWidth));
+
+
+
+		DrawString(10, 30, "object middle " + std::to_string(fMiddleOfObject));
+		
+
+	}
 	
 
 	bool isInSight(float objectx, float objecty, float fov, float &angle2player)
@@ -501,13 +592,14 @@ public: //main function
 		//drawMap();
 		//drawPlayer();
 		drawRays();
-		drawSpriteTest();
+		//drawSpriteTest();
+		NewDraw();
 		if (GetKey(olc::Key::SPACE).bHeld)
 		{
 			powers.Draw(this);
 		}
 		
-		trooper.Draw(this, player.x, player.y, player.angle);
+		//trooper.Draw(this, player.x, player.y, player.angle);
 		player.Draw(this);
 		saber.Draw(this, fElapsedTime,player.x,player.y);
 		lockon = isInSight(sprite[0].x, sprite[0].y, 20.0f * PI / 180.0f, fnotuse);
@@ -530,14 +622,7 @@ public: //main function
 		else {
 			DrawSprite(400, 80, spritePtrs[2]);
 		}
-		DrawString(10, 10, "player Angle:" + std::to_string(player.angle));
-	
 		
-			DrawString(10, 20, "fHeading" + std::to_string(fHeading));
-		
-		
-		
-		DrawString(10, 30, "player.x: " + std::to_string(player.x) + "player.y: " + std::to_string(player.y));
 		return true;
 	}
 
