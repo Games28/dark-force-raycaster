@@ -116,6 +116,7 @@ void Troopers::Draw(olc::PixelGameEngine* PGEptr, float playerx, float playery, 
 
 
 					olc::Pixel samplePixel = trooperSpritePtr[0]->Sample(fSampleX, fSampleY);
+					
 					if (samplePixel != olc::MAGENTA && nObjectColumn >= 0 && nObjectColumn < panewidth && depth[nObjectColumn] >= fDistanceFromPlayer)
 					{
 						

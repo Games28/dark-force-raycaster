@@ -482,6 +482,7 @@ public:  //functions
 
 					   
                        olc::Pixel samplePixel = spritePtrs[1]->Sample(fSampleX,  fSampleY);
+					   
                         if (samplePixel != olc::MAGENTA && nObjectColumn >= 0 && nObjectColumn < panewidth  && depth[nObjectColumn] >= fDistanceFromPlayer)
                         {
    					   	  
