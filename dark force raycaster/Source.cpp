@@ -23,6 +23,8 @@
 #define EPSILON 0.00001f
 #define MAP_SCALE 1.0f
 #define Q_PI PI * 0.25f
+#define PANE_W (SCREEN_W / SLICE_WIDTH)
+#define PANE_H (SCREEN_H / SLICE_WIDTH)
 int glbSliceWidth = SLICE_WIDTH;
 int World_Scale = WRLD_SCALE;
 constexpr int mapS = 64;
@@ -31,11 +33,7 @@ float DegToRad(float a) { return a * (PI / 180.0f); }
 
 float fixAngle(float a) { if (a >= 360.0f) { a -= 360.0f; } if (a < 0.0f) { a += 360.0f; } return a; }
 
-//typedef struct
-//{
-//	float x, y;
-//	float pdx, pdy, pa;
-//}Player; Player player;
+
 
 typedef struct
 {
@@ -47,10 +45,10 @@ typedef struct
 	olc::vi2d tileSize;
 	olc::vi2d curTile;
 }Sprite; Sprite sprite[4], spriteHand[4];
+int depth[PANE_W * PANE_H];
+//int depth[SCREEN_W];
 
-int depth[SCREEN_W];
-int ndepth = 120;
-//int depth[120];
+
 class dark_force_raycaster : public olc::PixelGameEngine
 {
 private:  //vaiables
@@ -72,7 +70,9 @@ private:  //vaiables
 	float oldAngle = 0;
 	float newAngle = 0;
 	float fHeading = 0;
-
+	olc::Pixel newP = olc::BLANK;
+	olc::Pixel oldP = olc::MAGENTA;
+	
 
 public:  //functions
 
@@ -124,7 +124,10 @@ public:  //functions
 		spritePtrs[1] = new olc::Sprite("textures/r2d2ground.png");
 		spritePtrs[2] = new olc::Sprite("textures/newicon.png");
 		spritePtrs[3] = new olc::Sprite("textures/newiconglow.png");
-		trooper.Init();
+		for(int i = 0; i < 4;i++)
+		{
+		}
+		trooper.Init(this);
 
 		powers.Init();
 		saber.Init();
@@ -194,6 +197,7 @@ public:  //functions
 		newAngle = player.angle;
 	}
 
+	
 	//draw functions
 
 	void drawPlayer()
@@ -376,79 +380,7 @@ public:  //functions
 		}
 	}
 
-	void drawSpriteTest()
-	{
-
-		auto is_between_pi_factors = [=](float fAngle, float fFactorLow, float fFactorHigh) {
-
-			return ((fAngle >= 3.14159f * fFactorLow) && (fAngle < 3.14159f * fFactorHigh)); };
-		int x, y;
-		float sx = sprite[0].x - player.x;
-		float sy = sprite[0].y - player.y;
-		float sz = sprite[0].z;
-
-		float CS = cos(player.angle), SN = sin(player.angle);
-		float a = sy * CS + sx * SN;
-		float b = sx * CS - sy * SN;
-		sx = a; sy = b;
-		sx = (sx * 108.0 / sy) + (120 / 2);
-		sy = (sz * 108.0 / sy) + (80 / 2);
-		fHeading = player.angle - sprite[0].a + 3.14159f / 4.0f;
-		if (fHeading < 0) fHeading += 2.0f * 3.14159f;
-		if (fHeading >= 2.0f * 3.14159f) fHeading -= 2.0f * 3.14159f;
-
-		int scale = 3000  *  WRLD_SCALE / b;
-
-		//if (scale < 0) { scale = 0; } if (scale > 120) { scale = 120; }
-		scale = std::max(0, std::min(SCREEN_W / SLICE_WIDTH, scale));
-
-		int nTextureSize = 100;
-		olc::vi2d curTile = { 0,0 };
-		olc::vi2d tileSize = { 100,100 };
-		//textures
-		float t_x = 0, t_y = 0, t_x_step = (float(nTextureSize) - 0.5f) / (float)scale, t_y_step = float(nTextureSize) / (float)scale;
-
-
-
-		if (is_between_pi_factors(fHeading, 0.0f, 0.5f))
-		{ //front
-			curTile = { 0,0 };
-		}
-		if (is_between_pi_factors(fHeading, 0.5f, 1.0f))
-		{ // left
-			curTile = { 1,0 };
-		}
-		if (is_between_pi_factors(fHeading, 1.0f, 1.5f))
-		{ //back
-			curTile = { 2,0 };
-		}
-
-		if (is_between_pi_factors(fHeading, 1.5f, 2.0f))
-		{ //right
-			curTile = { 3,0 };
-		}
-
-
-
-		for (x = sx - scale / 2; x < sx + scale / 2; x++)
-		{
-			t_y = nTextureSize - 1;
-			for (y = 0; y < scale; y++)
-			{
-				if (x > 0 && x < (SCREEN_W / SLICE_WIDTH) && b < depth[x])
-				{
-					olc::Pixel samplePixel = spritePtrs[1]->GetPixel(curTile.x * tileSize.x + t_x, curTile.y * tileSize.y + t_y);
-					if (samplePixel != olc::MAGENTA)
-					{
-						FillRect(x * SLICE_WIDTH, (sy - y) * SLICE_WIDTH, SLICE_WIDTH, SLICE_WIDTH, samplePixel);
-					}
-					t_y -= t_y_step; if (t_y < 0) { t_y = 0; }
-				}
-			}
-			t_x += t_x_step;
-		}
-
-	}
+	
 
 	void NewDraw()
 	{
@@ -468,10 +400,10 @@ public:  //functions
 		olc::vi2d tileSize = { 100,100 };
 
 		float  fObjectAngle = -atan2f(sy, sx) - atan2f(fEyeY, fEyeX);
-
-//		if (fObjectAngle < -PI) fObjectAngle += 2.0f * 3.14159f;
-//		if (fObjectAngle > PI) fObjectAngle -= 2.0f * 3.14159f;
-        // Joseph21 - if you have PI defined as a constant, then use PI iso 3.14159f
+		fHeading = player.angle - sprite[0].a + 3.14159f / 4.0f;
+		if (fHeading < 0) fHeading += 2.0f * 3.14159f;
+		if (fHeading >= 2.0f * 3.14159f) fHeading -= 2.0f * 3.14159f;
+//		
 		if (fObjectAngle < -PI) fObjectAngle += 2.0f * PI;
 		if (fObjectAngle >  PI) fObjectAngle -= 2.0f * PI;
 
@@ -490,6 +422,24 @@ public:  //functions
 		float fObjectAspectRatio = 0;
 		float fObjectWidth       = 0;
 		float fMiddleOfObject    = 0;
+
+		if (is_between_pi_factors(fHeading, 0.0f, 0.5f))
+		{ //front
+			curTile = { 0,0 };
+		}
+		if (is_between_pi_factors(fHeading, 0.5f, 1.0f))
+		{ // left
+			curTile = { 1,0 };
+		}
+		if (is_between_pi_factors(fHeading, 1.0f, 1.5f))
+		{ //back
+			curTile = { 2,0 };
+		}
+
+		if (is_between_pi_factors(fHeading, 1.5f, 2.0f))
+		{ //right
+			curTile = { 3,0 };
+		}
 
 		// Joseph21 - introduced scale factor to choose right ratio between object size and surrounding world
 		//            [ this appears to distort the rendering though ... :( ]
@@ -515,41 +465,43 @@ public:  //functions
 			for (x = 0; x < fObjectWidth; x++)
 			{
 			    // Joseph21 - you only need to calculate the object column once to iterate vertically over the pixels
-    			int nObjectColumn = (int)(fMiddleOfObject + x - (fObjectWidth / 2.0f));
+    			//int nObjectColumn = (int)(fMiddleOfObject + x - (fObjectWidth / 2.0f));
                 // Joseph21 - only iterate this column if object is closer than wall
-				if (depth[nObjectColumn] >= fDistanceFromPlayer)
+				//if (nObjectColumn >= 0 && nObjectColumn < panewidth && depth[nObjectColumn] >= fDistanceFromPlayer)
                 {
                     for (y = 0; y < fObjectHeight; y++)
                     {
                         // Joseph21 - take into account that you have multiple subsprites in one sprite sheet
-                        int nSelectedSubSprite = 0;
-                        int nSubSpritesX = 4;
-                        float fSpriteFraction = 1.0f / float( nSubSpritesX );
-                        // Joseph21 - determine sample coordinate depending on selected sub sprite and number of subsprites in sprite file
-                        float fSampleX = (x / fObjectWidth ) * fSpriteFraction + nSelectedSubSprite * fSpriteFraction;
-                        float fSampleY =  y / fObjectHeight;
-//    					int nObjectColumn = (int)(fMiddleOfObject + x - (fObjectWidth / 2.0f));
-                        olc::Pixel samplePixel = spritePtrs[1]->Sample(fSampleX, fSampleY);
-//                        if (samplePixel != olc::MAGENTA && depth[nObjectColumn] >= fDistanceFromPlayer)
-                        // Joseph21 - distance checking is moved outside this column loop
-                        if (samplePixel != olc::MAGENTA)
-                        {
-//    						FillRect(fObjectWidth * 8, (fObjectCeiling - y) * 8, 8, 8, samplePixel);
-                            // Joseph21 - use nObjectColumn to determine screen location for this pixel
-                            FillRect(nObjectColumn * sliceWidth, (fObjectCeiling + y) * sliceWidth, sliceWidth, sliceWidth, samplePixel);
+                       int nSelectedSubSprite = curTile.x;
+                       int nSubSpritesX = 4;
+                       float fSpriteFraction = 1.0f / float( nSubSpritesX );
+                       //// Joseph21 - determine sample coordinate depending on selected sub sprite and number of subsprites in sprite file
+                      float fSampleX = (x / fObjectWidth ) * fSpriteFraction + nSelectedSubSprite * fSpriteFraction;
+                      float fSampleY =  y / fObjectHeight;
+   					   int nObjectColumn = (int)(fMiddleOfObject + x - (fObjectWidth / 2.0f));
 
-                            // Joseph21 - distance checking is moved outside this column loop
-//    						depth[nObjectColumn] = fDistanceFromPlayer;
+					   
+                       olc::Pixel samplePixel = spritePtrs[1]->Sample(fSampleX,  fSampleY);
+                        if (samplePixel != olc::MAGENTA && nObjectColumn >= 0 && nObjectColumn < panewidth  && depth[nObjectColumn] >= fDistanceFromPlayer)
+                        {
+   					   	  
+                           // Joseph21 - use nObjectColumn to determine screen location for this pixel
+                           FillRect(nObjectColumn * sliceWidth, (fObjectCeiling + y) * sliceWidth, sliceWidth, sliceWidth, samplePixel);
+					   
+                           // Joseph21 - distance checking is moved outside this column loop
+						   depth[nObjectColumn] = fDistanceFromPlayer;
                         }
+						
                     }
-					depth[nObjectColumn] = fDistanceFromPlayer;
+					
+					
                 }
+				
 			}
 		}
 
-		DrawString(10, 10, "object height " + std::to_string(fObjectHeight));    // Joseph21 - fixed typo
-		DrawString(10, 20, "object width  " + std::to_string(fObjectWidth));     // Joseph21 - fixed typo
-		DrawString(10, 30, "object middle " + std::to_string(fMiddleOfObject));
+		    // Joseph21 - fixed typo
+		
 	}
 
 
@@ -573,6 +525,20 @@ public:  //functions
 		// compare the two angles and return if they are within a specified range
 		return (abs(ModuloTwoPi(player.angle) - angle2player) < fov) ||
 			(abs(ModuloTwoPi(player.angle) - angle2player) > (2.0f * PI - fov));
+	}
+
+	void SpriteColorKey(olc::Pixel& fromCol, olc::Pixel& toCol, olc::Sprite* sprPtr)
+	{
+		for (int y = 0; y < sprPtr->height; y++)
+		{
+			for (int x = 0; x < sprPtr->width; x++)
+			{
+				if (sprPtr->GetPixel(x, y) == fromCol)
+				{
+					sprPtr->SetPixel(x, y, toCol);
+				}
+			}
+		}
 	}
 
 public: //main function
@@ -601,13 +567,14 @@ public: //main function
 		//drawPlayer();
 		drawRays();
 		//drawSpriteTest();
+		trooper.Draw(this, player.x, player.y, player.angle);
 		NewDraw();
 		if (GetKey(olc::Key::SPACE).bHeld)
 		{
 			powers.Draw(this);
 		}
 
-		//trooper.Draw(this, player.x, player.y, player.angle);
+		
 		player.Draw(this);
 		saber.Draw(this, fElapsedTime,player.x,player.y);
 		lockon = isInSight(sprite[0].x, sprite[0].y, 20.0f * PI / 180.0f, fnotuse);
