@@ -294,7 +294,11 @@ public:  //functions
 		float ty_off = 0;
 		if (lineH > 640) { ty_off = (lineH - 640) / 2.0f; lineH = 640; }
 		int lineoff = 320 - (lineH / 2);
-		depth[r] = disH;
+		for (int i = 0; i < SCREEN_W; i++)
+		{
+			depth[i] = disH;
+		}
+		//depth[r] = disH;
 
 		int y;
 		float ty = ty_off * ty_step;
@@ -468,7 +472,7 @@ public:  //functions
     			//int nObjectColumn = (int)(fMiddleOfObject + x - (fObjectWidth / 2.0f));
                 // Joseph21 - only iterate this column if object is closer than wall
 				//if (nObjectColumn >= 0 && nObjectColumn < panewidth && depth[nObjectColumn] >= fDistanceFromPlayer)
-                {
+				{
                     for (y = 0; y < fObjectHeight; y++)
                     {
                         // Joseph21 - take into account that you have multiple subsprites in one sprite sheet
@@ -489,10 +493,10 @@ public:  //functions
                            // Joseph21 - use nObjectColumn to determine screen location for this pixel
                            FillRect(nObjectColumn * sliceWidth, (fObjectCeiling + y) * sliceWidth, sliceWidth, sliceWidth, samplePixel);
 					   
-                           // Joseph21 - distance checking is moved outside this column loop
+                           //Joseph21 - distance checking is moved outside this column loop
 						   depth[nObjectColumn] = fDistanceFromPlayer;
                         }
-						
+						//
                     }
 					
 					

@@ -128,7 +128,8 @@ void Troopers::Draw(olc::PixelGameEngine* PGEptr, float playerx, float playery, 
 							depth[nObjectColumn] = fDistanceFromPlayer;
 							
 					}
-					
+					//depth[nObjectColumn] = fDistanceFromPlayer;
+
 				}
 				
 				//DrawString(10, 10, "depth " + std::to_string(depth[nObjectColumn]));
