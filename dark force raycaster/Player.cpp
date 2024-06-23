@@ -1,37 +1,88 @@
-#include "Player.h"
+#include "player.h"
 
-void Player::Init()
+void Player::Init(Map* mapPtr)
 {
-	x = 150; y = 400; angle = 90 * 3.14159f / 180.0f; 
-	pdx = cos(angle); pdy = (angle);
-	handPos = { 100,350 };
-
+	x = (float)WINDOW_WIDTH / 4.0f;
+	y = (float)WINDOW_HEIGHT / 4.0f;
+	width = 2;
+	height = 2;
+	turnDirection = 0;
+	walkDirection = 0;
+	rotationAngle = PI / 2.0f;
+	walkSpeed = 100.0f;
+	strafeSpeed = 50.0f;
+	turnSpeed = 45.0f * (PI / 180.0f);
+	strafeDirection = 0;
+	pMap = mapPtr;
+	
 }
 
-void Player::handSprite()
+void Player::move(float deltatime)
 {
-	spriteHandPtr[0] = new olc::Sprite("textures/Dhand.png");
-	spriteHandPtr[1] = new olc::Sprite("textures/Ghand.png");
-	spriteHandPtr[2] = new olc::Sprite("textures/Lhand.png");
-}
+	rotationAngle += turnDirection * turnSpeed * deltatime;
+	normalizeAngle(&rotationAngle);
 
-void Player::Draw(olc::PixelGameEngine* PGEptr)
-{
-	float sx = handPos.x;
-	float sy = handPos.y;
-	int x, y;
-	int textureSize = 100;
+	float moveStep = walkDirection * walkSpeed * deltatime;
 
-	for (y = 0; y < textureSize; y++)
-	{
-		for (x = 0; x < textureSize; x++)
-		{
+	int new_index = pMap->get_table_index(rotationAngle);
+	//float newPlayerX = x + cos(rotationAngle) * moveStep;
+	//float newPlayerY = y + sin(rotationAngle) * moveStep;
+	float newPlayerX = x + pMap->cos_table[new_index] * moveStep;
+	float newPlayerY = y + pMap->sin_table[new_index] * moveStep;
 
-			olc::Pixel samplePixel = spriteHandPtr[2]->GetPixel(x, y);
-			if (samplePixel != olc::MAGENTA)
-			{
-				PGEptr->FillRect(sx + x * 4, sy + y * 4, 4, 4, samplePixel);
-			}
-		}
+	if (!pMap->mapHasWallAt(newPlayerX, newPlayerY)) {
+		x = newPlayerX;
+		y = newPlayerY;
+		
 	}
+}
+
+void Player::strafe(float deltatime)
+{
+	float strafestep = strafeSpeed * deltatime;
+	int new_index = pMap->get_table_index(rotationAngle);
+	float newStrafeX = 0;
+	float newStrafeY = 0;
+	if (strafeDirection == -1)
+	{
+		//newStrafeX = x - sin(rotationAngle) * strafestep;
+		//newStrafeY = y + cos(rotationAngle) * strafestep;
+		newStrafeX = x - pMap->sin_table[new_index] * strafestep;
+		newStrafeY = y + pMap->cos_table[new_index] * strafestep;
+	}
+	if (strafeDirection == 1)
+	{
+		//newStrafeX = x + sin(rotationAngle) * strafestep;
+		//newStrafeY = y - cos(rotationAngle) * strafestep;
+		newStrafeX = x + pMap->sin_table[new_index] * strafestep;
+		newStrafeY = y - pMap->cos_table[new_index] * strafestep;
+	}
+
+	if (!pMap->mapHasWallAt(newStrafeX, newStrafeY))
+	{
+		x = newStrafeX;
+		y = newStrafeY;
+	
+	}
+}
+
+void Player::render(olc::PixelGameEngine* pge)
+{
+	
+	pge->FillRect(
+		(int)(x * MINIMAP_SCALE_FACTOR),
+		(int)(y * MINIMAP_SCALE_FACTOR),
+		(int)(width * MINIMAP_SCALE_FACTOR),
+		(int)(height * MINIMAP_SCALE_FACTOR),
+		olc::GREEN
+	);
+}
+
+void Player::normalizeAngle(float* angle)
+{
+	*angle = remainder(*angle, TWO_PI);
+	if (*angle < 0) {
+		*angle = TWO_PI + *angle;
+	}
+	
 }

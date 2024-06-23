@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -127,21 +127,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Allies.h" />
-    <ClInclude Include="forcepowers.h" />
-    <ClInclude Include="Lightsaber.h" />
-    <ClInclude Include="NPC.h" />
+    <ClInclude Include="application.h" />
+    <ClInclude Include="defs.h" />
+    <ClInclude Include="map.h" />
+    <ClInclude Include="mapeditor.h" />
     <ClInclude Include="olcPixelGameEngine.h" />
-    <ClInclude Include="Player.h" />
-    <ClInclude Include="Troopers.h" />
+    <ClInclude Include="player.h" />
+    <ClInclude Include="ray.h" />
+    <ClInclude Include="sprite.h" />
+    <ClInclude Include="textures.h" />
+    <ClInclude Include="vector.h" />
+    <ClInclude Include="wall.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Allies.cpp" />
-    <ClCompile Include="forcepowers.cpp" />
-    <ClCompile Include="Lightsaber.cpp" />
-    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="application.cpp" />
+    <ClCompile Include="map.cpp" />
+    <ClCompile Include="player.cpp" />
+    <ClCompile Include="ray.cpp" />
     <ClCompile Include="Source.cpp" />
-    <ClCompile Include="Troopers.cpp" />
+    <ClCompile Include="sprite.cpp" />
+    <ClCompile Include="vector.cpp" />
+    <ClCompile Include="wall.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
