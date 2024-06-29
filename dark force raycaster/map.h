@@ -21,7 +21,7 @@ public:
 
     //test functions for multiple layers
     bool test_map_has_wall_at(float x, float y, int level);
-    int test_get_map_at(int i, int j, int level);
+    float test_get_map_at(int i, int j, int level);
 
 private:
    

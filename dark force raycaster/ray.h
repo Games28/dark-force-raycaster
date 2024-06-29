@@ -18,6 +18,8 @@ struct ray_t
 	int maplayer = -1;
 
 	//hit blocks
+	//default as 1 for now for fHeight
+	float fHeight = 0;
 	float front_distance,
 		Back_distance;
 
@@ -28,11 +30,8 @@ struct ray_t
 };
 
 
-struct ray_levels
-{
-	std::vector<ray_t> HitListType;
-};
-//typedef std::vector<ray_t> HitListType;
+
+typedef std::vector<ray_t> HitListType;
 
 class Rays
 {
@@ -47,7 +46,7 @@ public:
 
 public:
 
-	ray_levels rays[NUM_RAYS];
+	HitListType rays[NUM_RAYS];
 	
 	//rays array per level
 	

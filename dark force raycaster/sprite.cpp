@@ -93,7 +93,7 @@ void Sprite::renderSpriteProjection(olc::PixelGameEngine* pge, Player& player, R
 					//color_t* spriteTextureBuffer = (color_t*)upng_get_buffer(texture.textures[sprite.texture]);
 					//color_t texelColor = spriteTextureBuffer[(textureWidth * textureOffSetY) + textureOffSetX];
 					olc::Pixel texelColor = spritetextures[sprite.texture]->GetPixel(textureOffSetX, textureOffSetY);
-					if (sprite.distance < ray.rays[x].HitListType[0].front_distance && texelColor != 0xffff00ff)
+					if (sprite.distance < ray.rays[x][0].front_distance && texelColor != 0xffff00ff)
 						pge->Draw(x, y, texelColor);
 				}
 

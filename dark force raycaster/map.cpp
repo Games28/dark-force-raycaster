@@ -2,7 +2,7 @@
 
 bool Map::mapHasWallAt(float x, float y)
 {
-	if (x < 0 || x >= MAP_NUM_COLS * TILE_SIZE || y < 0 || y >= MAP_NUM_ROWS * TILE_SIZE) {
+	if (x < 0 || x >= MAP_NUM_COLS_X * TILE_SIZE || y < 0 || y >= MAP_NUM_ROWS_Y * TILE_SIZE) {
 		return true;
 	}
 	int mapGridIndexX = (int)(floor(x / TILE_SIZE));
@@ -12,13 +12,13 @@ bool Map::mapHasWallAt(float x, float y)
 
 bool Map::isInsideMap(float x, float y)
 {
-	return (x >= 0 && x <= MAP_NUM_COLS * TILE_SIZE && y >= 0 && y <= MAP_NUM_ROWS * TILE_SIZE);
+	return (x >= 0 && x <= MAP_NUM_COLS_X * TILE_SIZE && y >= 0 && y <= MAP_NUM_ROWS_Y * TILE_SIZE);
 }
 
 void Map::renderMapGrid(olc::PixelGameEngine* pge)
 {
-	for (int i = 0; i < MAP_NUM_ROWS; i++) {
-		for (int j = 0; j < MAP_NUM_COLS; j++) {
+	for (int i = 0; i < MAP_NUM_ROWS_Y; i++) {
+		for (int j = 0; j < MAP_NUM_COLS_X; j++) {
 			int tileX = j * TILE_SIZE;
 			int tileY = i * TILE_SIZE;
 			olc::Pixel tileColor = map_layer_one[i][j] != 0 ? olc::BLUE : olc::WHITE;
@@ -38,12 +38,12 @@ void Map::renderMapGrid(olc::PixelGameEngine* pge)
 
 bool Map::test_map_has_wall_at(float x, float y, int level)
 {
-	if (x < 0 || x >= MAP_NUM_COLS * TILE_SIZE || y < 0 || y >= MAP_NUM_ROWS * TILE_SIZE) {
+	if (x < 0 || x >= MAP_NUM_COLS_X * TILE_SIZE || y < 0 || y >= MAP_NUM_ROWS_Y * TILE_SIZE) {
 		return true;
 	}
 	int mapGridIndexX = (int)(floor(x / TILE_SIZE));
 	int mapGridIndexY = (int)(floor(y / TILE_SIZE));
-
+	float mapindex = 0;
 	switch (level)
 	{
 	case 1:
@@ -53,42 +53,85 @@ bool Map::test_map_has_wall_at(float x, float y, int level)
 
 	case 2:
 	{
+
 		return map_layer_two[mapGridIndexY][mapGridIndexX] != 0;
+
 	}break;
 
 	case 3:
 	{
 		return map_layer_three[mapGridIndexY][mapGridIndexX] != 0;
 	}break;
+
+	case 4:
+	{
+		return map_layer_four[mapGridIndexY][mapGridIndexX] != 0;
+	}break;
 	}
 	
 }
 
-int Map::test_get_map_at(int i, int j, int level)
+float Map::test_get_map_at(int i, int j, int level)
 {
+
+	if (i == 14)
+	{
+		int u = 0;
+	}
+	float result;
+	
 	switch (level)
 	{
 	case 1:
 	{
-		return map_layer_one[i][j];
+		result = map_layer_one[i][j];
 	}break;
-
 	case 2:
 	{
-		return map_layer_two[i][j];
+		result = map_layer_two[i][j];
 	}break;
-
 	case 3:
 	{
-		return map_layer_three[i][j];
+		result = map_layer_three[i][j];
+	}break;
+	case 4:
+	{
+		result = map_layer_four[i][j];
 	}break;
 	}
+	//if(level == 1)
+	//{
+	//	result = map_layer_one[i][j];
+	//}
+	//
+    //if(level == 2)
+	//{
+	//	result =  map_layer_two[i][j];
+	//}
+	//
+	//if(level == 3)
+	//{
+	//	result = map_layer_three[i][j];
+	//}
+	//
+	//if (level == 4)
+	//{
+	//	result = map_layer_four[i][j];
+	//}
+	//
+
+	
+	return result;
 }
 
 
 
 int Map::getMapAt(int i, int j)
 {
+	if (i == 14)
+	{
+		int u = 0;
+	}
 	return map_layer_one[i][j];
 }
 

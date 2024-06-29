@@ -14,6 +14,8 @@ public:
 	void strafe(float deltatime);
 	void render(olc::PixelGameEngine* pge);
 	void normalizeAngle(float* angle);
+	float fMaxDistance();
+	void DrawDepth(olc::PixelGameEngine* pge, float fdepth, int x, int y, olc::Pixel color);
 
 public:
 	float x;
@@ -29,6 +31,8 @@ public:
 	float strafeSpeed;
 	bool  isstrafingleft;
 	bool  isstrafingright;
+	float fPlayerH = 0.5f;
+
 
 	Vec2 playermovebefore = Vec2(0, 0);
 	Vec2 playermoveafter = Vec2(0, 0);
@@ -44,6 +48,8 @@ public:
 	//	Map map;
 	Map* pMap = nullptr;
 
+	float fmaxDist;
+	float* fDepthBuffer = nullptr;
 };
 
 #endif // 

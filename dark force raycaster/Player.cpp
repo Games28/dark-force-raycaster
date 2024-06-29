@@ -15,6 +15,7 @@ void Player::Init(Map* mapPtr)
 	strafeDirection = 0;
 	pMap = mapPtr;
 	
+	fDepthBuffer = new float[WINDOW_WIDTH * WINDOW_HEIGHT];
 }
 
 void Player::move(float deltatime)
@@ -85,4 +86,22 @@ void Player::normalizeAngle(float* angle)
 		*angle = TWO_PI + *angle;
 	}
 	
+}
+
+float Player::fMaxDistance()
+{
+	return sqrt(MAP_NUM_COLS_X * MAP_NUM_COLS_X + MAP_NUM_ROWS_Y * MAP_NUM_ROWS_Y);
+}
+
+void Player::DrawDepth(olc::PixelGameEngine* pge, float fdepth, int x, int y, olc::Pixel color)
+{
+	if (x >= 0 && x < WINDOW_WIDTH &&
+		y >= 0 && y < WINDOW_HEIGHT)
+	{
+		if (fdepth <= fDepthBuffer[y * WINDOW_WIDTH + x])
+		{
+			fDepthBuffer[y * WINDOW_WIDTH + x] = fdepth;
+			pge->Draw(x, y, color);
+		}
+	}
 }

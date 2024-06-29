@@ -16,8 +16,8 @@
 #define WINDOW_HEIGHT 400
 #define PIXEL_SIZE 2
 
-#define MAP_NUM_ROWS 14
-#define MAP_NUM_COLS 20
+#define MAP_NUM_ROWS_Y 14
+#define MAP_NUM_COLS_X 20
 
 #define TEXTURE_WIDTH 64
 #define TEXUTRE_HEIGHT 64

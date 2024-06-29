@@ -10,6 +10,7 @@ void Application::Setup()
 	wall.Init_texture();
 	sprite.Init_Sprites(&map);
 	map.Init_lookup_tables();
+	player.fmaxDist = player.fMaxDistance();
 }
 
 void Application::ProcessInput(olc::PixelGameEngine* pge)

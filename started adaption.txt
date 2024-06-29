@@ -1,0 +1,212 @@
+implmented this part with only blank screen
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+++void CalculateWallBottomAndTop2(float fCorrectedDistToWall, int nHorHeight, int nLevelHeight,float fWallHeight, int& nWallTop, int& nWallBottom, Player& player)
+{
+int nSliceHeight = int((TILE_SIZE / fCorrectedDistToWall) * Dist_PROJ_PLANE);
+nWallTop = nHorHeight - (float(nSliceHeight) * (1.0f - player.fPlayerH)) - (wallheight - 1) * nSliceHeight;
+nWallBotton = nHorHeight + (float(nSliceHeight) * player.fPlayerH);
+}
+
+
+
+++int nHorizonHeight = WINDOW_HEIGHT * player.fPlayerH;
+
+for (int x = 0; x < NUM_RAYS; x++) {
+
+	std::vector<DelayedPixel> vDelayedPixels;
+
+	bool bFinished = false;
+
+++auto get_ceiling_sample = [=](int px, int py, float fHeight)->olc::Pixel{
+                                float fFloorProjDistance = (((TILE_SIZE * player.fPlayerH) / (float)(nHorizonHeight - py)) * DIST_TO_PROJ_PLANE) / fCosViewAngle;
+                                float fFloorProjX = fPlayerX + fFloorProjDistance * fCosCurAngle;
+                                float fFloorProjY = fPlayerY + fFloorProjDistance * fSinCurAngle;
+                                int nSampleX = (int)(fFloorProjX) % TILE_SIZE;
+                                int nSampleY = (int)(fFloorProjY) % TILE_SIZE;
+
+
+				++olc::Pixel color = walltextures[4]->GetPixel(nSampleX, nSampleY);
+                             return color;
+ 
+                };
+              
+               ++auto get_floor_sample = [=](int px, int py, float fHeight)->olc::Pixel{
+                      float fFloorProjDistance = (((TILE_SIZE * player.fPlayerH) / (float)(py - nHorizonHeight)) * DIST_TO_PROJ_PLANE) / fCosViewAngle;
+                     float fFloorProjX = fPlayerX + fFloorProjDistance * fCosCurAngle;
+                      float fFloorProjY = fPlayerY + fFloorProjDistance * fSinCurAngle;
+                          float fTILE_SIZE = TILE_SIZE;
+                     while (fFloorProjX < 0.0f) { fFloorProjX += floor(fTILE_SIZE); }
+                     while (fFloorProjY < 0.0f) { fFloorProjY += floor(fTILE_SIZE); }
+                     int nSampleX = (int)(fFloorProjX) % TILE_SIZE;
+                     int nSampleY = (int)(fFloorProjY) % TILE_SIZE;
+
+                     olc::Pixel p = sprites[0].GetPixel(nSampleX, nSampleY);
+                        return p;
+                    //olc::Pixel p = SelectSceneryPixel(0, nSampleX, nSampleY,fDistnace, Side::Bottom);
+  
+                };
+            ++auto get_roof_sample = [=](int px,int py, float fHeight)->olc::Pixel {
+                     float fFloorProjDistance = ((((TILE_SIZE * player.fPlayerH) - fHeight) / (float)(py - nHorizonHeight)) * DIST_TO_PROJ_PLANE) / fCosViewAngle;
+                     float fFloorProjX = fPlayerX + fFloorProjDistance * fCosCurAngle;
+                      float fFloorProjY = fPlayerY + fFloorProjDistance * fSinCurAngle;
+                          float fTILE_SIZE = TILE_SIZE;
+                     while (fFloorProjX < 0.0f) { fFloorProjX += floor(fTILE_SIZE); }
+                     while (fFloorProjY < 0.0f) { fFloorProjY += floor(fTILE_SIZE); }
+                     int nSampleX = (int)(fFloorProjX) % TILE_SIZE;
+                     int nSampleY = (int)(fFloorProjY) % TILE_SIZE;
+
+                     olc::Pixel p = sprites[0].GetPixel(nSampleX, nSampleY);
+                        return p;
+ 
+                };
+
+
+
+	for (int i = 0; i < (int)ray.rays[x].HitListType.size() && !bFinished; i++)
+	{
+                
+
+                
+
+
+                ++int nX_hit, nY_hit, nWallTop1, nWallTop2, nWallBottom1, nWallBottom2;
+                ++float fX_hit, fY_hit;
+		float prepDistance = ray.rays[x].HitListType[i].distance * cos(ray.rays[x][i].rayAngle - player.rotationAngle);
+                 
+
+
+		--float WallHeight = (TILE_SIZE / prepDistance * Dist_PROJ_PLANE);
+
+		-int wallStripHeight = (int)WallHeight;
+
+		--int wallTopY = (WINDOW_HEIGHT / 2) - (wallStripHeight / 2);
+		--int wallBottomY = (WINDOW_HEIGHT / 2) + (wallStripHeight / 2);
+                
+                //ceiling_front and front_bottom
+               ++CalculateBottomAndTop2(prepDistance,nHorizonHeight,ray.rays[x][i].fHeight,ray.rays[x][i].ceil_front,ray.rays[x][i].bottom_front,player);
+   
+                 //ceiling_back and back_bottom
+                ++CalculateBottomAndTop2(prepDistance,nHorizonHeight,ray.rays[x][i].fHeight,ray.rays[x][i].ceil_back,ray.rays[x][i].bottom_back,player);
+
+                 
+
+                //rendering sky and floor first though painters algorithm
+                for( int y = WINDOW_HEIGHT - 1; y >= 0; y--)
+                  {
+                    if(y < nHorizonHeight)
+                    {
+                        pge->Draw(x, y, olc::CYAN);
+                      }
+                      else
+                     {
+                        olc::Pixel floorSample = get_floor_sample(x,y); //issue but it goes through in the code but draw blank screen?
+                         pge->Draw(x, y, floorSample);
+
+                    }                                       
+
+
+
+
+   
+                  }
+
+                //set varibles for first hitpoint
+ /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////                
+
+		wallTopY = wallTopY < 0 ? 0 : wallTopY;
+		wallBottomY = wallBottomY > WINDOW_HEIGHT ? WINDOW_HEIGHT : wallBottomY;
+
+		--int nHalfWindowHeight = WINDOW_HEIGHT / 2;
+		--float fPlayerH = TILE_SIZE / 2.0f;
+		
+
+                float fFoV = 60.0f;
+		float fAngleStep = fFoV / (float)NUM_RAYS;
+		float fViewAngle = (float)(x - (NUM_RAYS / 2)) * fAngleStep;
+		float fCurAngle = (player.rotationAngle * 180.0f / PI) + fViewAngle;
+		float fPlayerX = player.x;
+		float fPlayerY = player.y;
+		float fCosCurAngle = cos(fCurAngle * PI / 180.0f);
+		float fSinCurAngle = sin(fCurAngle * PI / 180.0f);
+		float fCosViewAngle = cos(fViewAngle * PI / 180.0f);
+
+
+
+		int textureOffSetX;
+		if (ray.rays[x][i].wasHitVertical) {
+			textureOffSetX = (int)ray.rays[x][i].wallHitY % TILE_SIZE;
+		}
+		else {
+			textureOffSetX = (int)ray.rays[x][i].wallHitX % TILE_SIZE;
+		}
+
+		int texNum = ray.rays[x][i].texture - 1;
+
+		int texture_width = walltextures[texNum]->width;
+		int texture_height = walltextures[texNum]->height;
+
+     }
+}
+
+
+
+		--for (int y = 0; y < WINDOW_HEIGHT; y++)
+		{
+			--if (y < wallTopY)         // pixel is above the wall, render sky color
+			{
+                                ++float fFloorProjDistance = ((fPlayerH / (float)(nHalfWindowHeight - y)) * Dist_PROJ_PLANE) / fCosViewAngle;
+				++float fFloorProjX = fPlayerX + fFloorProjDistance * fCosCurAngle;
+				++float fFloorProjY = fPlayerY + fFloorProjDistance * fSinCurAngle;
+				++int nSampleX = (int)(fFloorProjX) % TILE_SIZE;
+				++int nSampleY = (int)(fFloorProjY) % TILE_SIZE;
+
+				++olc::Pixel color = walltextures[4]->GetPixel(nSampleX, nSampleY);
+
+				++pge->Draw(x, y, color);
+				pge->Draw(x, y, olc::CYAN);
+			}
+			--else if (y > wallBottomY)  // pixel is below the wall, render floor pixel
+			{
+
+				float fFloorProjDistance = ((fPlayerH / (float)(y - nHalfWindowHeight)) * Dist_PROJ_PLANE) / fCosViewAngle;
+				float fFloorProjX = fPlayerX + fFloorProjDistance * fCosCurAngle;
+				float fFloorProjY = fPlayerY + fFloorProjDistance * fSinCurAngle;
+				int nSampleX = (int)(fFloorProjX) % TILE_SIZE;
+				int nSampleY = (int)(fFloorProjY) % TILE_SIZE;
+
+				olc::Pixel color = walltextures[4]->GetPixel(nSampleX, nSampleY);
+
+				pge->Draw(x, y, color);
+			}
+			--else                      // pixel is part of the wall, render wall pixel
+			{
+                int distanceFromTop = y + (wallStripHeight / 2) - (WINDOW_HEIGHT / 2);
+				int textureOffSetY = distanceFromTop * ((float)texture_height / wallStripHeight);
+
+
+				olc::Pixel texelColor = walltextures[texNum]->GetPixel(textureOffSetX, textureOffSetY);
+
+				if (isTranparent[texNum])
+				{
+					vDelayedPixels.push_back({ x,y,texelColor });
+				}
+				else
+				{
+					pge->Draw(x, y, texelColor);
+				}
+
+				
+			}
+		}
+		bFinished = !isTranparent[texNum];
+		
+	}
+
+	for (int i = (int)vDelayedPixels.size() - 1; i >= 0; i--) {
+		DelayedPixel& dp = vDelayedPixels[i];
+		if (dp.p != olc::BLANK) {
+
+			pge->Draw(dp.x, dp.y, dp.p);
+		}
+	}
+}

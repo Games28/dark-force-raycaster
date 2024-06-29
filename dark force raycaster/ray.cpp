@@ -22,6 +22,7 @@ void Rays::castRay(float rayAngle, int stripId, Player& player, Map& map, int le
 	float horzWallHitX = 0;
 	float horzWallHitY = 0;
 	int horzWallContent = 0;
+	float horzwallheight = 0.0f;
 
 	// Find the y-coordinate of the closest horizontal grid intersection
 	yintercept = floor(player.y / TILE_SIZE) * TILE_SIZE;
@@ -43,7 +44,7 @@ void Rays::castRay(float rayAngle, int stripId, Player& player, Map& map, int le
 	float nextHorzTouchY = yintercept;
 
 	// aux lambda to populate a hit record
-	auto fill_hitrec = [=](ray_t& rec, float fA, float fWhX, float fWhY, float fDst, bool bHitVer, int nTxtr, int level) {
+	auto fill_hitrec = [=](ray_t& rec,float fheight, float fA, float fWhX, float fWhY, float fDst, bool bHitVer, int nTxtr, int level) {
 		rec.rayAngle = fA;
 		rec.wallHitX = fWhX;
 		rec.wallHitY = fWhY;
@@ -51,6 +52,7 @@ void Rays::castRay(float rayAngle, int stripId, Player& player, Map& map, int le
 		rec.wasHitVertical = bHitVer;
 		rec.texture = nTxtr;
 		rec.maplayer = level;
+		rec.fHeight = fheight;
 		};
 
 	// clear the list of hit points before you start filling it again
@@ -60,15 +62,20 @@ void Rays::castRay(float rayAngle, int stripId, Player& player, Map& map, int le
 	while (map.isInsideMap(nextHorzTouchX, nextHorzTouchY))
 	{
 		float xToCheck = nextHorzTouchX;
+		if (level == 3)
+		{
+			int u = 0;
+		}
 		float yToCheck = nextHorzTouchY + (isRayFacingUp ? -1 : 0);
-
+		
 		//map.mapHasWallAt is working version
-		if (map.test_map_has_wall_at(xToCheck, yToCheck,level)) {
+		if (map.test_map_has_wall_at(xToCheck, yToCheck, level)) {
 			// found a wall hit
 			horzWallHitX = nextHorzTouchX;
 			horzWallHitY = nextHorzTouchY;
 			//map.getMapAt is working version
-			horzWallContent = map.test_get_map_at((int)floor(yToCheck / TILE_SIZE), (int)floor(xToCheck / TILE_SIZE),level);
+			horzWallContent = 1;
+			horzwallheight	= map.test_get_map_at((int)floor(yToCheck / TILE_SIZE), (int)floor(xToCheck / TILE_SIZE),level);
 			foundHorzWallHit = true;
 			float horzHitDistance = foundHorzWallHit
 				? distanceBetweenPoints(player.x, player.y, horzWallHitX, horzWallHitY)
@@ -76,8 +83,8 @@ void Rays::castRay(float rayAngle, int stripId, Player& player, Map& map, int le
 
 
 			ray_t tmp_hitpoint;
-			fill_hitrec(tmp_hitpoint, rayAngle, horzWallHitX, horzWallHitY, horzHitDistance, false, horzWallContent,level);
-			rays[stripId].HitListType.push_back(tmp_hitpoint);
+			fill_hitrec(tmp_hitpoint,horzwallheight, rayAngle, horzWallHitX, horzWallHitY, horzHitDistance, false, horzWallContent,level - 1);
+			rays[stripId].push_back(tmp_hitpoint);
 		}
 		nextHorzTouchX += xstep;
 		nextHorzTouchY += ystep;
@@ -89,7 +96,8 @@ void Rays::castRay(float rayAngle, int stripId, Player& player, Map& map, int le
 	bool foundVertWallHit = false;
 	float vertWallHitX = 0;
 	float vertWallHitY = 0;
-	int vertWallContent = 0;
+    int vertWallContent = 0;
+	float vertwallheight = 0.0f;
 
 	// Find the x-coordinate of the closest horizontal grid intersection
 	xintercept = floor(player.x / TILE_SIZE) * TILE_SIZE;
@@ -118,7 +126,7 @@ void Rays::castRay(float rayAngle, int stripId, Player& player, Map& map, int le
 	while (map.isInsideMap(nextVertTouchX, nextVertTouchY)) {
 		float xToCheck = nextVertTouchX + (isRayFacingLeft ? -1 : 0);
 		float yToCheck = nextVertTouchY;
-
+		
 		//map.mapHasWallAt is working version
 		if (map.test_map_has_wall_at(xToCheck, yToCheck,level)) {
 			// found a wall hit
@@ -126,7 +134,8 @@ void Rays::castRay(float rayAngle, int stripId, Player& player, Map& map, int le
 			vertWallHitY = nextVertTouchY;
 
 			//map.getMapAt is working version
-			vertWallContent = map.test_get_map_at((int)floor(yToCheck / TILE_SIZE), (int)floor(xToCheck / TILE_SIZE),level);
+			vertWallContent = 1;
+			vertwallheight = map.test_get_map_at((int)floor(yToCheck / TILE_SIZE), (int)floor(xToCheck / TILE_SIZE),level);
 			foundVertWallHit = true;
 			float vertHitDistance = foundVertWallHit
 				? distanceBetweenPoints(player.x, player.y, vertWallHitX, vertWallHitY)
@@ -134,8 +143,8 @@ void Rays::castRay(float rayAngle, int stripId, Player& player, Map& map, int le
 
 
 			ray_t tmp_hitpoint;
-			fill_hitrec(tmp_hitpoint, rayAngle, vertWallHitX, vertWallHitY, vertHitDistance, true, vertWallContent, level);
-			rays[stripId].HitListType.push_back(tmp_hitpoint);
+			fill_hitrec(tmp_hitpoint,vertwallheight, rayAngle, vertWallHitX, vertWallHitY, vertHitDistance, true, vertWallContent, level - 1);
+			rays[stripId].push_back(tmp_hitpoint);
 		}
 		nextVertTouchX += xstep;
 		nextVertTouchY += ystep;
@@ -152,7 +161,7 @@ void Rays::castAllRays(Player& player, Map& map)
 		for (int col = 0; col < NUM_RAYS; col++) 
 		{
 			//clear current ray array list for new update info
-			rays[col].HitListType.clear();
+			rays[col].clear();
 
 
 			for (int i = 1; i < 4; i++)
@@ -160,34 +169,28 @@ void Rays::castAllRays(Player& player, Map& map)
 			   float rayAngle = player.rotationAngle + (float)(col - NUM_RAYS / 2) / (float)(NUM_RAYS)*FOV_ANGLE;
 			   castRay(rayAngle, col, player, map,i);
 		    }
-			// sort list of hitpoints from close by to far away
+
+
 			std::sort(
-				rays[col].HitListType.begin(),
-				rays[col].HitListType.end(),
-				[](ray_t& a, ray_t& b) 
+				rays[col].begin(),
+				rays[col].end(),
+				[](ray_t& a, ray_t& b)
 				{
-					return (a.front_distance < b.front_distance) ||
+					return (a.front_distance > b.front_distance) ||
 						(a.front_distance == b.front_distance && a.maplayer < b.maplayer);
 				}
 			);
 
-			//getting rid of empty textures
-			std::vector<ray_t> temp_rays;
-			for (int i = 0; i < rays[col].HitListType.size(); i++)
-			{
-				ray_t tempray;
-				if (rays[col].HitListType[i].texture != 0)
-				{
-					tempray = rays[col].HitListType[i];
-					temp_rays.push_back(tempray);
-				}
-				
-			}
-			
-			rays[col].HitListType.clear();
-
-			rays[col].HitListType = temp_rays;
-
+			rays[col].erase(
+				std::remove_if(
+					rays[col].begin(),
+					rays[col].end(),
+					[](ray_t& a) {
+						return a.fHeight == 0.0f;
+					}
+				),
+				rays[col].end()
+			);
 			
 	    }
 }
@@ -198,8 +201,8 @@ void Rays::renderMapRays(olc::PixelGameEngine* pge, Player& player)
 		pge->DrawLine(
 			(int)(player.x * MINIMAP_SCALE_FACTOR),
 			(int)(player.y * MINIMAP_SCALE_FACTOR),
-			(int)(rays[i].HitListType[0].wallHitX * MINIMAP_SCALE_FACTOR),
-			(int)(rays[i].HitListType[0].wallHitY * MINIMAP_SCALE_FACTOR),
+			(int)(rays[i][0].wallHitX * MINIMAP_SCALE_FACTOR),
+			(int)(rays[i][0].wallHitY * MINIMAP_SCALE_FACTOR),
 			olc::CYAN
 		);
 	}
