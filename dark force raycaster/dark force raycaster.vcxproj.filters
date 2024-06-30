@@ -18,25 +18,22 @@
     <ClInclude Include="olcPixelGameEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="defs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="vector.h">
+    <ClInclude Include="defs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="player.h">
+    <ClInclude Include="mapeditor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ray.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wall.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sprite.h">
@@ -45,33 +42,36 @@
     <ClInclude Include="textures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="mapeditor.h">
+    <ClInclude Include="vector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wall.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="application.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="vector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="map.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="player.cpp">
+    <ClCompile Include="Player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wall.cpp">
+    <ClCompile Include="Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sprite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wall.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
